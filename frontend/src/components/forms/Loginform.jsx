@@ -8,6 +8,9 @@ const api = new HandleApiCalls();
 function Loginform(){
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const event  = () =>{
+        api.login(email, password)
+    }
     return(
         <>
 
@@ -30,7 +33,7 @@ function Loginform(){
                     placeHolder={"Password:"} 
                     type={"password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}/>
+                    onChange={(e) => setPassword(e.target.value) }/>
 
 
                     <h1 className=" underline text-white sm:text-black">
@@ -41,7 +44,7 @@ function Loginform(){
                <Button 
                marginBottom={"mb-5"}
                text={"Login"} 
-               event={() => api.Login(email, password)} 
+               event={event} 
                widthButton={"w-[190px]"}
                heightButton={"h-[48px]"}/>
 
@@ -52,4 +55,4 @@ function Loginform(){
 
 
 
-export default Loginform;
+export default Loginform;                                      

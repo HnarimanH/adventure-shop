@@ -11,6 +11,12 @@ function CreatAccform(){
     const [password,   setPassword] = useState("");
     const [first_name, setFirst_name] = useState("");
     const [last_name,  setLast_name] = useState("");
+    const event  = async () =>{
+
+        const res = await api.Register(username, email, password, first_name, last_name);
+        const token = res.data.access;
+        localStorage.setItem("token", token);
+    }
     return(
         <>
                 <Title fileName={"BmoSayingHi.png"} text={"Sign up"}/>
@@ -64,7 +70,7 @@ function CreatAccform(){
                <Button 
                marginBottom={"mb-5"}
                text={"Submit"} 
-               event={() => api.Register(username, email, password, first_name, last_name)}  
+               event={event}  
                widthButton={"w-[190px]"}
                heightButton={"h-[48px]"}/>
             </>

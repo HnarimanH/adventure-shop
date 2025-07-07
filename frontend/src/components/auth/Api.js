@@ -11,8 +11,8 @@ class HandleApiCalls {
                 first_name,
                 last_name
             }).then((res) => {
-                console.log("Login successful:", res.data);
-                return res.data; // if you still want to use this result elsewhere
+                console.log("Registered:", res.data);
+                return res.data;
             }).catch((err) => {
                 console.error("Login error:", err.response?.data || err.message);
             });
@@ -20,7 +20,7 @@ class HandleApiCalls {
             console.log("All fields should be filled");
         }
 
-    } q
+    }
 
 
     Login(email, password) {
@@ -29,16 +29,23 @@ class HandleApiCalls {
             password,
         }).then((res) => {
             console.log("Login successful:", res.data);
-            return res.data; // if you still want to use this result elsewhere
+            return res.data;
         }).catch((err) => {
             console.error("Login error:", err.response?.data || err.message);
         });
     }
     VerifyEmail(uid, token) {
-        console.log('sj')
         return axios.post('http://127.0.0.1:8000/api/emailverification/', {
             uid,
             token
+        });
+    }
+    deleteInactiveUser() {
+        return axios.post('http://127.0.0.1:8000/api/deleteinactiveuser/', {
+
+
+        }).then((res) => {
+            console.log(res.data);
         });
     }
 

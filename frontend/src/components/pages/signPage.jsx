@@ -1,15 +1,22 @@
 import React from "react";
+import HandleApiCalls from "../auth/Api";
 import Button from "../miniComponents/Button";
 import Loginform from "../forms/Loginform";
 import CreatAccform from "../forms/CreatAccForm";
 import { useState } from "react";
-
 function SignPage(){
     const [isLogin, setIsLogin] = useState(true);
     const pageHandler = ()=>{
         setIsLogin(!isLogin)
+        
     }
-    console.log("Current state isLogin:", isLogin);
+
+
+
+    
+
+
+    
 
     return(
         <div className="w-full h-full flex flex-col-reverse lg:flex-row justify-center items-center">
