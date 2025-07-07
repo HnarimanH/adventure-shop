@@ -8,8 +8,15 @@ const api = new HandleApiCalls();
 function Loginform(){
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const event  = () =>{
-        api.login(email, password)
+    const event  = async () => {
+        await api.Login(email, password).then((res) =>{
+            const token = res.access;
+            localStorage.setItem("token", token);
+            window.location.reload();
+        }).catch((e)=> {
+            console.log("Error:", e);
+        })
+
     }
     return(
         <>

@@ -12,7 +12,9 @@ class HandleApiCalls {
                 last_name
             }).then((res) => {
                 console.log("Registered:", res.data);
+
                 return res.data;
+
             }).catch((err) => {
                 console.error("Login error:", err.response?.data || err.message);
             });
@@ -28,7 +30,7 @@ class HandleApiCalls {
             email,
             password,
         }).then((res) => {
-            console.log("Login successful:", res.data);
+            console.log("Login message:", res.data);
             return res.data;
         }).catch((err) => {
             console.error("Login error:", err.response?.data || err.message);
@@ -41,12 +43,7 @@ class HandleApiCalls {
         });
     }
     deleteInactiveUser() {
-        return axios.post('http://127.0.0.1:8000/api/deleteinactiveuser/', {
-
-
-        }).then((res) => {
-            console.log(res.data);
-        });
+        return axios.post('http://127.0.0.1:8000/api/deleteinactiveuser/', {});
     }
 
 }

@@ -1,48 +1,54 @@
 import SignPage from './components/pages/signPage'
 import { use, useEffect, useState } from "react";
 import HandleApiCalls from './components/auth/Api';
-
+import Dashboard from './components/pages/dashboard';
 
 const api = new HandleApiCalls();
 function App() {
-  const [isLogedIn, setIsLogedIn] = useState(false)
+
+  const [isLogedIn, setIsLogedIn] = useState(() => {
+  if (localStorage.getItem("token")){ return true; }
+  return false;
+});
   
   useEffect(() => {
   const interval = setInterval(() => {
     api.deleteInactiveUser()
-  }, 2 * 0 * 1000);
+  }, 2 * 60 * 1000);
   return () => clearInterval(interval); 
 }, []);
 
 
 
   
-  useEffect(async () => {
-    
+  useEffect(() => {
+  const verifyAndLogin = async () => {
     const params = new URLSearchParams(window.location.search);
     const uid = params.get("uid");
     const token = params.get("token");
 
     if (uid && token) {
-      // Call backend to verify email
-      await api.VerifyEmail(uid, token).then((res) => {
-
-          console.log("Email verified:");
-
-          localStorage.setItem("token", token);
-          
-        }).catch((err) => {
-
-          console.error("Email verification failed:", err.response?.data || err.message);
-
-        });
+      try {
+        const res = await api.VerifyEmail(uid, token);
+        console.log("Email verified", res);
+        
+        setIsLogedIn(true);
+      } catch (err) {
+        console.error(
+          "Verification or login failed:",
+          err.response?.data || err.message
+        );
+      }
     }
-  }, []);
+  };
 
+  verifyAndLogin();
+}, []);
   return (
     <>
       <div className='w-screen h-screen flex justify-center items-center'>
-          <SignPage/>
+          
+          {isLogedIn ? <Dashboard/> : <SignPage/>}
       </div>
     </>
   )

@@ -13,9 +13,12 @@ function CreatAccform(){
     const [last_name,  setLast_name] = useState("");
     const event  = async () =>{
 
-        const res = await api.Register(username, email, password, first_name, last_name);
-        const token = res.data.access;
-        localStorage.setItem("token", token);
+        await api.Register(username, email, password, first_name, last_name)
+        await api.Login(email, password).then((res) =>{
+            const token = localStorage.setItem("token", token);
+        }).catch((e)=> {
+            console.log("Error:", e);
+        })
     }
     return(
         <>
