@@ -10,6 +10,7 @@ from django.utils.encoding import force_bytes
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     
+        
     # validating the email and usenrame via UniqueValidator to check if the username or email exist.
     
     email = serializers.CharField(
@@ -67,6 +68,9 @@ class UserLoginSerializer(serializers.Serializer):
     
     def validate(self, data):
         
+
+        
+    
         
         try:
             userObj = User.objects.get(email=data.get('email')).username
@@ -83,6 +87,9 @@ class UserLoginSerializer(serializers.Serializer):
         # If successful, attach user object to validated data   
         if not user:
             raise serializers.ValidationError("Invalid username or password")
+        if not user.is_active:
+            return serializers.ValidationError("Please verify your email before logging in.")
+    
         data['user'] = user
         return data
     

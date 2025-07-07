@@ -11,7 +11,29 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth.models import User
 
 
-# Create your views here.
+
+
+
+
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+from django.contrib.auth.models import User
+from datetime import timedelta
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+class DeleteInactiveUserView(APIView):
+    def post(self, request):
+        cutoff_time = timezone.now() - timedelta(minutes=2)
+        users_to_delete = User.objects.filter(is_active=False, date_joined__lt=cutoff_time)
+
+        count = users_to_delete.count()
+        users_to_delete.delete()
+        return Response({"message": f"Deleted {count} unverified users."})
+    
+    
 class RegisterView(APIView):
     def post(self, request):
         serializer = UserRegisterSerializer(data = request.data)
@@ -34,10 +56,16 @@ class RegisterView(APIView):
     
     
     
+    
+    
+    
+    
+    
+    
+    
 class EmailVerificationView(APIView): 
     def post(self, request):
-        
-        
+    
         token = request.data.get("token")
         uid = request.data.get("uid")
         
@@ -59,6 +87,14 @@ class EmailVerificationView(APIView):
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
 class LoginView(APIView):
     def post(self, request):
         serializer = UserLoginSerializer(data = request.data)
@@ -70,7 +106,17 @@ class LoginView(APIView):
                 "access":str(refreshToken.access_token),
                 "refresh":str(refreshToken)
             })
-        return Response({"message": "Fuck!"})
+        return Response({"message": "invalid request"})
+
+
+
+
+
+
+
+
+
+
 
 
 
