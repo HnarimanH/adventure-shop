@@ -14,10 +14,10 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     # validating the email and usenrame via UniqueValidator to check if the username or email exist.
     
     email = serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.all(), message="Email already asigned to another account.")]
+        validators=[UniqueValidator(queryset=User.objects.all(), message="Email")]
     )
     username = serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.all(), message="Username already taken.")]
+        validators=[UniqueValidator(queryset=User.objects.all(), message="Username")]
     )
     
     
