@@ -22,20 +22,21 @@ from datetime import timedelta
 import logging
 
 logger = logging.getLogger(__name__)
-
-
-class DeleteInactiveUserView(APIView):
-    def post(self, request):
+def cleanup_unverified_users(self, *args, **kwargs):
         cutoff_time = timezone.now() - timedelta(minutes=2)
         users_to_delete = User.objects.filter(is_active=False, date_joined__lt=cutoff_time)
 
         count = users_to_delete.count()
         users_to_delete.delete()
-        return Response({"message": f"Deleted {count} unverified users."})
+
+        self.stdout.write(self.style.SUCCESS(f"Deleted {count} unverified users."))
+
+
     
     
 class RegisterView(APIView):
     def post(self, request):
+        cleanup_unverified_users() 
         serializer = UserRegisterSerializer(data = request.data)
         if serializer.is_valid():
             user = serializer.save()
