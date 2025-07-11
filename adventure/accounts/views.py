@@ -25,11 +25,9 @@ logger = logging.getLogger(__name__)
 def cleanup_unverified_users(self, *args, **kwargs):
         cutoff_time = timezone.now() - timedelta(minutes=2)
         users_to_delete = User.objects.filter(is_active=False, date_joined__lt=cutoff_time)
-
-        count = users_to_delete.count()
         users_to_delete.delete()
 
-        self.stdout.write(self.style.SUCCESS(f"Deleted {count} unverified users."))
+        
 
 
     
