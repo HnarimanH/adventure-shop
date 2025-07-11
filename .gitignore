@@ -1,0 +1,8 @@
+
+.env
+.DS_Store
+venv/
+
+
+adventure/.DS_Store
+adventure/db.sqlite3
