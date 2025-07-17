@@ -97,15 +97,31 @@ class UserLoginSerializer(serializers.Serializer):
 
 
 class UserForgotPasswprdSerializer(serializers.Serializer):
+    
+    # Define expected fields for reseting password (email & password)
     email = serializers.CharField()
+    password = serializers.CharField()
     
     def validate(self, data):
         try:
+            # checks if the user exists and creates an instance oof user
             user = User.objects.get(email=data.get('email'))
         except User.DoesNotExist:
             raise serializers.ValidationError("Email not registered")
-            
+        
+        # genereates a token
         token = PasswordResetTokenGenerator().make_token(user)
+        
+        
+        
+        # Why do you care about user.pk?
+
+        # Because when you generate tokens for email verification or password reset, 
+        # you need to send a reference back to the backend so it knows which user to operate on.
+        # The easiest way? Encode the primary key (pk) into a URL-safe format,
+        # slap it in a link, and send it via email.
+        
+        # This encodes the user’s ID so it can be safely passed through URLs without breaking or exposing the raw ID directly.
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         
         
