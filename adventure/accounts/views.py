@@ -46,7 +46,7 @@ class RegisterView(APIView):
             
             token = PasswordResetTokenGenerator().make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
-            verification_link = f"{os.getenv("CORS_ORIGINS", "").split(",")}/?uid={uid}&token={token}"
+            verification_link =f"{os.getenv('CORS_ORIGINS', '').split(',')[0]}/?uid={uid}&token={token}"
             print(verification_link)
             send_mail(
                 subject='Adventure shop Email verification',
@@ -163,7 +163,7 @@ class ForgotPassView(APIView):
             uid = data['uid']
 
             # reset link (frontend route)
-            reset_link = f"{os.getenv("CORS_ORIGINS", "").split(",")}/?uid={uid}&token={token}&newpassword={newpassword}"
+            reset_link = f"{os.getenv('CORS_ORIGINS', '').split(',')[0]}/?uid={uid}&token={token}&newpassword={newpassword}"
 
             send_mail(
                 subject='Adventure Shop Password Reset',
