@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
+from .models import MyUser
 from django.contrib.auth import authenticate
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
-
+import random
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -14,10 +14,10 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     # validating the email and usenrame via UniqueValidator to check if the username or email exist.
     
     email = serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.all(), message="Email")]
+        validators=[UniqueValidator(queryset=MyUser.objects.all(), message="Email")]
     )
     username = serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.all(), message="Username")]
+        validators=[UniqueValidator(queryset=MyUser.objects.all(), message="Username")]
     )
     
     
@@ -26,7 +26,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         
         # Using Django's built-in User model for registration
-        model = User
+        model = MyUser
         
         
         # Limit serializer to only expose username and password fields
@@ -38,13 +38,15 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         
         # Creates and returns a new user with hashed password
-        user =  User.objects.create_user(
+        user =  MyUser.objects.create_user(
             
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
+            profilePic=random.randint(0,11)
+            
             
         )
         user.is_active = False
@@ -73,8 +75,8 @@ class UserLoginSerializer(serializers.Serializer):
     
         
         try:
-            userObj = User.objects.get(email=data.get('email')).username
-        except User.DoesNotExist:
+            userObj = MyUser.objects.get(email=data.get('email')).username
+        except MyUser.DoesNotExist:
             raise serializers.ValidationError("Invalid username or password")
         # Authenticates user with provided credentials against the database
         user = authenticate(
@@ -89,9 +91,10 @@ class UserLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid username or password")
         if not user.is_active:
             return serializers.ValidationError("Please verify your email before logging in.")
-    
-        data['user'] = user
+
+        data['user'] = MyUser.objects.get(username=user.username)
         return data
+        
     
         
 
@@ -105,8 +108,8 @@ class UserForgotPasswprdSerializer(serializers.Serializer):
     def validate(self, data):
         try:
             # checks if the user exists and creates an instance oof user
-            user = User.objects.get(email=data.get('email'))
-        except User.DoesNotExist:
+            user = MyUser.objects.get(email=data.get('email'))
+        except MyUser.DoesNotExist:
             raise serializers.ValidationError("Email not registered")
         
         # genereates a token

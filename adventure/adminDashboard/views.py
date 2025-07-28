@@ -8,7 +8,7 @@ from django.core.mail import send_mail
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from .models import Product
 from django.contrib.auth.models import User
-
+from rest_framework.permissions import IsAuthenticated
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
@@ -29,3 +29,4 @@ class CreateProductView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    

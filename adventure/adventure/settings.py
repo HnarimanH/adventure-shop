@@ -7,11 +7,6 @@ load_dotenv(dotenv_path=BASE_DIR / '.env', override=True)  # 👈 override syste
 
 
 
-
-
-
-
-
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'

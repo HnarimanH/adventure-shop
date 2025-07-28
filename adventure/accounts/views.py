@@ -8,10 +8,9 @@ from django.core.mail import send_mail
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
-from django.contrib.auth.models import User
+from .models import MyUser
 import os
 from django.utils import timezone
-from django.contrib.auth.models import User
 from datetime import timedelta
 import logging
 from django.utils.decorators import method_decorator
@@ -21,7 +20,7 @@ from django.views.decorators.csrf import csrf_exempt
 logger = logging.getLogger(__name__)
 def cleanup_unverified_users():
         cutoff_time = timezone.now() - timedelta(minutes=2)
-        users_to_delete = User.objects.filter(is_active=False, date_joined__lt=cutoff_time)
+        users_to_delete = MyUser.objects.filter(is_active=False, date_joined__lt=cutoff_time)
         print(users_to_delete.count())
         users_to_delete.delete()
 
@@ -41,7 +40,7 @@ class RegisterView(APIView):
             token = PasswordResetTokenGenerator().make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             verification_link = f"http://localhost:5173/?uid={uid}&token={token}"
-
+            print(verification_link)
             send_mail(
                 subject='Adventure shop Email verification',
                 message=f'please verify you email at Adventure shop by clicking the link: {verification_link}.',
@@ -73,7 +72,7 @@ class EmailVerificationView(APIView):
         
         try:
             uid = urlsafe_base64_decode(uid).decode()
-            user = User.objects.get(pk=uid)
+            user = MyUser.objects.get(pk=uid)
         except Exception:
             return Response({"errors":"Invalid uid" }, status=400)
         
@@ -86,18 +85,18 @@ class EmailVerificationView(APIView):
         return Response({
             "access": str(refresh.access_token),
             "refresh": str(refresh),
-            "message": "Email verified and logged in"
+            "is_superuser": user.is_superuser,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "username": user.username,
+            "profilePic": user.profilePic
         })
     
     
     
     
-    
-    
-    
-    
-    
-    
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class LoginView(APIView):
@@ -106,11 +105,17 @@ class LoginView(APIView):
         if serializer.is_valid(): 
             user = serializer.validated_data['user']
             login(request, user)
-            refreshToken = RefreshToken.for_user(user)
+            refresh = RefreshToken.for_user(user)
+            print(user.profilePic)
             return Response({
-                "access":str(refreshToken.access_token),
-                "refresh":str(refreshToken),
-                "is_superuser": user.is_superuser
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+                "is_superuser": user.is_superuser,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+                "username": user.username,
+                "profilePic": user.profilePic
             })
         return Response({"message": "invalid request"})
 
@@ -137,7 +142,7 @@ class ForgotPassView(APIView):
             token = data['token']
             uid = data['uid']
 
-            # Build a reset link (frontend route)
+            # reset link (frontend route)
             reset_link = f"http://localhost:5173/?uid={uid}&token={token}&email={email}&newpassword={newpassword}"
 
             send_mail(
@@ -158,10 +163,9 @@ class ResetPasswordView(APIView):
         uid = request.data.get('uid')
         token = request.data.get('token')
         new_password = request.data.get('new_password')
-
         try:
             uid = urlsafe_base64_decode(uid).decode()
-            user = User.objects.get(pk=uid)
+            user = MyUser.objects.get(pk=uid)
         except Exception:
             return Response({"error": "Invalid UID"}, status=400)
 
