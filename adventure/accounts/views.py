@@ -40,7 +40,7 @@ class RegisterView(APIView):
             
             token = PasswordResetTokenGenerator().make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
-            verification_link = f"https://localhost:5173/?uid={uid}&token={token}"
+            verification_link = f"http://localhost:5173/?uid={uid}&token={token}"
 
             send_mail(
                 subject='Adventure shop Email verification',
@@ -82,7 +82,12 @@ class EmailVerificationView(APIView):
         
         user.is_active = True
         user.save()
-        return Response({"message": "Email verified successfully!"})
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "message": "Email verified and logged in"
+        })
     
     
     
@@ -133,7 +138,7 @@ class ForgotPassView(APIView):
             uid = data['uid']
 
             # Build a reset link (frontend route)
-            reset_link = f"https://localhost:5173/?uid={uid}&token={token}&email={email}&newpassword={newpassword}"
+            reset_link = f"http://localhost:5173/?uid={uid}&token={token}&email={email}&newpassword={newpassword}"
 
             send_mail(
                 subject='Adventure Shop Password Reset',
