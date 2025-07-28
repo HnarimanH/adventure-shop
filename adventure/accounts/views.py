@@ -10,6 +10,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from .models import MyUser
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 from django.utils import timezone
 from datetime import timedelta
 import logging
@@ -17,11 +19,16 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
 
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(dotenv_path=BASE_DIR / '.env', override=True) 
+
+
 logger = logging.getLogger(__name__)
 def cleanup_unverified_users():
         cutoff_time = timezone.now() - timedelta(minutes=2)
         users_to_delete = MyUser.objects.filter(is_active=False, date_joined__lt=cutoff_time)
-        print(users_to_delete.count())
         users_to_delete.delete()
 
         
@@ -39,11 +46,24 @@ class RegisterView(APIView):
             
             token = PasswordResetTokenGenerator().make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
-            verification_link = f"http://localhost:5173/?uid={uid}&token={token}"
+            verification_link = f"{os.getenv("CORS_ORIGINS", "").split(",")}/?uid={uid}&token={token}"
             print(verification_link)
             send_mail(
                 subject='Adventure shop Email verification',
-                message=f'please verify you email at Adventure shop by clicking the link: {verification_link}.',
+                message=f"""Hey there, brave adventurer.
+
+                Thanks for signing up at Adventure Shop. But before you storm the gates of glory, we need you to verify your email.
+
+                Click the magical link below to activate your account:
+
+                🔗 [{verification_link}]
+
+                If you didn’t sign up, just ignore this message. Or forward it to someone who deserves a good time.
+
+                See you on the other side,
+                The Adventure Shop Goblins 🛒⚔️
+
+                P.S. This link expires faster than a discount on swords.""",
                 from_email='noreply@gmail.com',
                 recipient_list=[request.data.get('email')],
                 fail_silently=False
@@ -143,11 +163,24 @@ class ForgotPassView(APIView):
             uid = data['uid']
 
             # reset link (frontend route)
-            reset_link = f"http://localhost:5173/?uid={uid}&token={token}&email={email}&newpassword={newpassword}"
+            reset_link = f"{os.getenv("CORS_ORIGINS", "").split(",")}/?uid={uid}&token={token}&newpassword={newpassword}"
 
             send_mail(
                 subject='Adventure Shop Password Reset',
-                message=f'Click the link to reset your password: {reset_link}',
+                message=f"""Hey adventurer,
+
+                Looks like you forgot your password. No big deal. Happens to everyone even the best sword slingers.
+
+                Click the link below to reset it and get back to conquering:
+
+                🔗 [{reset_link}]
+
+                This link is only valid for a short time, so don’t take too long. The dungeon won’t clear itself.
+
+                If you didn’t request this reset, ignore this email. No spells were cast.
+
+                Stay strong,  
+                – The Adventure Shop Team 🛡️""",
                 from_email='noreply@gmail.com',
                 recipient_list=[email],
                 fail_silently=False
