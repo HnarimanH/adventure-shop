@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 class ProductView(APIView):
-    def get(self):
+    def get(self, request):
         products = Product.objects.all()
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
