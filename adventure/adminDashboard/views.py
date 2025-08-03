@@ -2,15 +2,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import ProductSerializer, CreateProductSerializer
 from rest_framework import status
-from django.contrib.auth import login
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.core.mail import send_mail
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from .models import Product
-from django.contrib.auth.models import User
-from rest_framework.permissions import IsAuthenticated
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here
 

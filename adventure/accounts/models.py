@@ -1,6 +1,5 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.contrib.auth.models import User
-import random
-# Create your models here.
-class MyUser(User):
-    profilePic=models.IntegerField()
+
+class MyUser(AbstractUser):
+    profilePic = models.IntegerField(null=True, blank=True)

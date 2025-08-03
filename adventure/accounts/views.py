@@ -17,8 +17,9 @@ from datetime import timedelta
 import logging
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-
-
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.parsers import JSONParser
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,7 +48,7 @@ class RegisterView(APIView):
             token = PasswordResetTokenGenerator().make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             verification_link =f"{os.getenv('CORS_ORIGINS', '').split(',')[0]}/?uid={uid}&token={token}"
-            print(verification_link)
+            verification_link2 =f"{os.getenv('CORS_ORIGINS', '').split(',')[1]}/?uid={uid}&token={token}"
             send_mail(
                 subject='Adventure shop Email verification',
                 message=f"""Hey there, brave adventurer.
@@ -57,7 +58,11 @@ class RegisterView(APIView):
                 Click the magical link below to activate your account:
 
                 🔗 [{verification_link}]
-
+                
+                if the link above does not work continue with this link:
+                🔗 [{verification_link2}]
+                
+                
                 If you didn’t sign up, just ignore this message. Or forward it to someone who deserves a good time.
 
                 See you on the other side,
@@ -164,6 +169,7 @@ class ForgotPassView(APIView):
 
             # reset link (frontend route)
             reset_link = f"{os.getenv('CORS_ORIGINS', '').split(',')[0]}/?uid={uid}&token={token}&newpassword={newpassword}"
+            reset_link2 = f"{os.getenv('CORS_ORIGINS', '').split(',')[2]}/?uid={uid}&token={token}&newpassword={newpassword}"
 
             send_mail(
                 subject='Adventure Shop Password Reset',
@@ -174,6 +180,10 @@ class ForgotPassView(APIView):
                 Click the link below to reset it and get back to conquering:
 
                 🔗 [{reset_link}]
+                
+                
+                if the link above does not work continue with this link:
+                🔗 [{reset_link2}]
 
                 This link is only valid for a short time, so don’t take too long. The dungeon won’t clear itself.
 
@@ -209,3 +219,24 @@ class ResetPasswordView(APIView):
         user.save()
 
         return Response({"message": "Password successfully reset."})
+    
+    
+    
+    
+@method_decorator(csrf_exempt, name='dispatch') 
+
+
+
+
+class DeleteUserAccount(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        try:
+            user = request.user
+            print("Deleting user:", user.username)
+            user.delete()
+            return Response({"message": "User deleted successfully."})
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)

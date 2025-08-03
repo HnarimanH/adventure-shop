@@ -12,7 +12,7 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
-
+AUTH_USER_MODEL = 'accounts.MyUser'
 
 
 INSTALLED_APPS = [
